@@ -81,6 +81,12 @@ class Viaje{
 		return $this->mensajeoperacion ;
 	}
 
+    public function contarPasajeros() {
+        $cantidad = count($this->getColPasajeros());
+        return $cantidad;
+      
+    }
+
     /**
 	 * Recupera los datos de una persona por dni
 	 * @param int $dni
@@ -236,10 +242,11 @@ class Viaje{
 		return $resp; 
 	}
 
+
     public function __toString(){
 	    return  "\nId Viaje: ".$this->getIdViaje().
                 "\nDestino: ".$this->getDestino(). 
-                "\nCantidad Maxima de Pasajero :".$this->getCantMaxPasajeros().
+                "\nCantidad Maxima de Pasajeros :".$this->getCantMaxPasajeros().
                 "\n-----------------------------\n".
                 "\nEmpresa: ".$this->getEmpresa().
                 "\n-----------------------------\n".

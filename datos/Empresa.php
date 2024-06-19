@@ -179,7 +179,6 @@ class Empresa{
 	    return "\nId Empresa: ".$this->getIdEmpresa().
                 "\nNombre :".$this->getNombreEmpresa().
                 "\nDireccion: ".$this->getDireccion();
-			
 	}
 }
 ?>

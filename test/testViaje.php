@@ -569,7 +569,6 @@ function insertarPasajero($viaje)
     }
 
     if ($continuarEjecucion) {
-
         $pasajero = new Pasajero();
 
         // Solicitar los datos del nuevo pasajero
@@ -583,15 +582,16 @@ function insertarPasajero($viaje)
         $telefono = trim(fgets(STDIN));
 
         // Verificar si el pasajero ya existe
-        if ($pasajero->Buscar($dni)) {
+        if ($pasajero->buscar($dni)) {
             escribirRojo("El pasajero con DNI $dni ya existe.\n");
         } else {
             // Cargar los datos del nuevo pasajero y tratar de insertarlo en la base de datos
-            $pasajero->cargar(0, $dni, $nombre, $apellido, $telefono, $viaje->getIdViaje());
+            $pasajero->cargar(0, $dni, $nombre, $apellido, $telefono);
+            $pasajero->setIdViaje($viaje->getIdViaje()); // Asignar el idviaje del objeto $viaje
             if ($pasajero->insertar()) {
                 escribirVerde("Pasajero insertado correctamente.\n");
             } else {
-                escribirRojo("Error al insertar pasajero: " . $pasajero->getmensajeoperacion() . "\n");
+                escribirRojo("Error al insertar pasajero: " . $pasajero->getMensajeOperacion() . "\n");
             }
         }
     }
