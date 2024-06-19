@@ -165,60 +165,55 @@ function eliminarEmpresa()
             escribirVerde($unaEmpresa . "\n");
         }
 
+        escribirVerde("\nIngrese ID de la empresa a eliminar\n");
+        $id = trim(fgets(STDIN));
 
-    escribirVerde("\nIngrese ID de la empresa a eliminar\n");
-    $id = trim(fgets(STDIN));
-
-    if ($empresa->Buscar($id)) {
-        // Eliminar los viajes asociados a la empresa
-        $viaje = new Viaje();
-        $viajes = $viaje->listar("idempresa=$id");
-        foreach ($viajes as $unViaje) {
-            // Eliminar los pasajeros asociados al viaje
-            $pasajero = new Pasajero();
-            $pasajeros = $pasajero->listar("idviaje={$unViaje->getIdViaje()}");
-            foreach ($pasajeros as $unPasajero) {
-                if (!$unPasajero->eliminar()) {
-                    escribirRojo("Error al eliminar pasajero: " . $unPasajero->getmensajeoperacion() . "\n");
-                } //else {
-                //     escribirVerde("Pasajero eliminado correctamente.\n");
-                // }
-            }
-
-            // Ahora eliminar el viaje
-            if (!$unViaje->eliminar()) {
-                escribirRojo("Error al eliminar viaje: " . $unViaje->getmensajeoperacion() . "\n");
-            } //else {
-              //  escribirVerde("Viaje eliminado correctamente.\n");
-            //}
-        }
-
-        // Ahora eliminar la empresa
-        if ($empresa->eliminar()) {
-            escribirVerde("Empresa eliminada correctamente.\n");
-            
-            // Comprobar si no quedan empresas y reiniciar el contador de ID
-            
-            if (empty($empresas)) {
-                $baseDatos = new BaseDatos();
-                if ($baseDatos->Iniciar()) {
-                    $consulta = "ALTER TABLE empresa AUTO_INCREMENT = 1";
-                    if ($baseDatos->Ejecutar($consulta)) {
-                        escribirVerde("Contador de ID reiniciado correctamente.\n");
-                    } else {
-                        escribirRojo("Error al reiniciar contador de ID: " . $baseDatos->getError() . "\n");
+        if ($empresa->Buscar($id)) {
+            // Eliminar los viajes asociados a la empresa
+            $viaje = new Viaje();
+            $viajes = $viaje->listar("idempresa=$id");
+            foreach ($viajes as $unViaje) {
+                // Eliminar los pasajeros asociados al viaje
+                $pasajero = new Pasajero();
+                $pasajeros = $pasajero->listar("idviaje={$unViaje->getIdViaje()}");
+                foreach ($pasajeros as $unPasajero) {
+                    if (!$unPasajero->eliminar()) {
+                        escribirRojo("Error al eliminar pasajero: " . $unPasajero->getmensajeoperacion() . "\n");
                     }
-                } else {
-                    escribirRojo("Error al iniciar la conexión con la base de datos: " . $baseDatos->getError() . "\n");
+                }
+
+                // Ahora eliminar el viaje
+                if (!$unViaje->eliminar()) {
+                    escribirRojo("Error al eliminar viaje: " . $unViaje->getmensajeoperacion() . "\n");
                 }
             }
+
+            // Ahora eliminar la empresa
+            if ($empresa->eliminar()) {
+                escribirVerde("Empresa eliminada correctamente.\n");
+
+                // Comprobar si no quedan empresas y reiniciar el contador de ID
+                $empresasRestantes = $empresa->listar();
+                if (empty($empresasRestantes)) {
+                    $baseDatos = new BaseDatos();
+                    if ($baseDatos->Iniciar()) {
+                        $consulta = "ALTER TABLE empresa AUTO_INCREMENT = 1";
+                        if ($baseDatos->Ejecutar($consulta)) {
+                            escribirVerde("Contador de ID reiniciado correctamente.\n");
+                        } else {
+                            escribirRojo("Error al reiniciar contador de ID: " . $baseDatos->getError() . "\n");
+                        }
+                    } else {
+                        escribirRojo("Error al iniciar la conexión con la base de datos: " . $baseDatos->getError() . "\n");
+                    }
+                }
+            } else {
+                escribirRojo("Error al eliminar empresa: " . $empresa->getmensajeoperacion() . "\n");
+            }
         } else {
-            escribirRojo("Error al eliminar empresa: " . $empresa->getmensajeoperacion() . "\n");
+            escribirRojo("Empresa no encontrada.\n");
         }
-    } else {
-        escribirRojo("Empresa no encontrada.\n");
     }
-}
 }
 // Repite funciones CRUD similares para Viaje, Pasajero y Responsable
 
@@ -661,61 +656,57 @@ function listarPasajeros($viaje)
 
 function eliminarPasajero()
 {
-
     $pasajero = new Pasajero();
-    //mostrar lista de Pasajeros para eliminar
-    $pasajeros = $pasajero->listar(); // Suponiendo que listar() devuelve un array de objetos Pasajero
-    $continuarEjecucion = true;
+
+    // Mostrar lista de pasajeros para eliminar
+    $pasajeros = $pasajero->listar();
+
     // Verificar si hay pasajeros para eliminar
     if (empty($pasajeros)) {
         escribirRojo("No hay pasajeros existentes.\n");
+        return; // Salir de la función si no hay pasajeros
     } else {
         escribirVerde("Listado de pasajeros:\n");
         foreach ($pasajeros as $unPasajero) {
             escribirVerde($unPasajero . "\n");
         }
+    }
 
-    if ($continuarEjecucion) {
-        // // Mostrar la lista de pasajeros
-        // foreach ($pasajeros as $unPasajero) {
-        //     escribirVerde($unPasajero . "\n");
-        // }
-        // Solicitar el DNI del pasajero a eliminar
-        escribirVerde("Ingrese el DNI del pasajero a eliminar: ");
-        $dni = trim(fgets(STDIN));
+    // Solicitar el DNI del pasajero a eliminar
+    escribirVerde("Ingrese el DNI del pasajero a eliminar: ");
+    $dni = trim(fgets(STDIN));
 
-        // Verificar si el pasajero existe
-        if ($pasajero->Buscar($dni)) {
-            // Eliminar el pasajero de la base de datos
-            if ($pasajero->eliminar()) {
-                escribirVerde("Pasajero eliminado correctamente.\n");
+    // Verificar si el pasajero existe
+    if ($pasajero->Buscar($dni)) {
+        // Eliminar el pasajero de la base de datos
+        if ($pasajero->eliminar()) {
+            escribirVerde("Pasajero eliminado correctamente.\n");
 
-                if (empty($pasajeros)) {
-                    // Si no hay pasajero, reiniciamos el contador de ID
-                    $baseDatos = new BaseDatos();
-                    if ($baseDatos->Iniciar()) {
-                        // Ejecutar consulta SQL para reiniciar el contador de ID
-                        $consulta = "ALTER TABLE pasajero AUTO_INCREMENT = 1";
-                        if ($baseDatos->Ejecutar($consulta)) {
-                            escribirVerde("Contador de ID reiniciado correctamente.\n");
-                        } else {
-                            escribirRojo("Error al reiniciar contador de ID: " . $baseDatos->getError() . "\n");
-                        }
+            // Verificar si no hay más pasajeros
+            $pasajerosRestantes = $pasajero->listar(); // Obtener lista actualizada
+            if (empty($pasajerosRestantes)) {
+                // Si no hay pasajeros, reiniciamos el contador de ID
+                $baseDatos = new BaseDatos();
+                if ($baseDatos->Iniciar()) {
+                    // Ejecutar consulta SQL para reiniciar el contador de ID
+                    $consulta = "ALTER TABLE pasajero AUTO_INCREMENT = 1";
+                    if ($baseDatos->Ejecutar($consulta)) {
+                        escribirVerde("Contador de ID reiniciado correctamente.\n");
                     } else {
-                        escribirRojo("Error al iniciar la conexión con la base de datos: " . $baseDatos->getError() . "\n");
+                        escribirRojo("Error al reiniciar contador de ID: " . $baseDatos->getError() . "\n");
                     }
+                } else {
+                    escribirRojo("Error al iniciar la conexión con la base de datos: " . $baseDatos->getError() . "\n");
                 }
-
-            } else {
-                escribirRojo("Error al eliminar pasajero: " . $pasajero->getmensajeoperacion() . "\n");
             }
+
         } else {
-            escribirRojo("No se encontró un pasajero con el DNI $dni.\n");
+            escribirRojo("Error al eliminar pasajero: " . $pasajero->getmensajeoperacion() . "\n");
         }
+    } else {
+        escribirRojo("No se encontró un pasajero con el DNI $dni.\n");
     }
 }
-}
-
 // Ejecución del menú principal
 do {
     opcionesMenu();
