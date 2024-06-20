@@ -82,8 +82,8 @@ class Persona{
 		if($base->Iniciar()){
 			if($base->Ejecutar($consultaPersona)){
 				if($row2=$base->Registro()){
-                    $this->setIdPersona($row2['$idpersona']);					
-				    $this->setNrodoc($row2['dni']);
+                    $this->setIdPersona($idpersona);					
+				    $this->setNrodoc($dni);
 					$this->setNombre($row2['nombre']);
 					$this->setApellido($row2['apellido']);
 					$this->setTelefono($row2['telefono']);
@@ -116,13 +116,13 @@ class Persona{
 				$arregloPersona= array();
 				while($row2=$base->Registro()){
 					$idPersona=$row2['idpersona'];
-					$nroDoc=$row2['nrodoc'];
-					$nombre=$row2['nombre'];
-					$apellido=$row2['apellido'];
-					$telefono=$row2['telefono'];
+					$NroDoc=$row2['nrodoc'];
+					$Nombre=$row2['nombre'];
+					$Apellido=$row2['apellido'];
+					$Telefono=$row2['telefono'];
 				
 					$perso=new Persona();
-					$perso->cargar($idPersona,$nroDoc,$nombre,$apellido,$telefono);
+					$perso->cargar($idPersona,$NroDoc,$Nombre,$Apellido,$Email);
 					array_push($arregloPersona,$perso);
 	
 				}
@@ -142,70 +142,68 @@ class Persona{
 
 	
 	public function insertar(){
-		$base=new BaseDatos();
-		$resp= false;
-		$consultaInsertar="INSERT INTO persona(idpersona,nrodoc, apellido, nombre,  email) 
-				VALUES (".$this->getIdPersona().",'".$this->getNrodoc().",'".$this->getApellido()."','".$this->getNombre()."')";
+		$base = new BaseDatos();
+		$resp = false;
+		
+		// Consulta de inserción con corrección de sintaxis y manejo de autoincremento
+		$consultaInsertar = "INSERT INTO persona(nrodoc, apellido, nombre, telefono) 
+							 VALUES ('".$this->getNrodoc()."','".$this->getApellido()."','".$this->getNombre()."','".$this->getTelefono()."')";
 		
 		if($base->Iniciar()){
-
 			if($base->Ejecutar($consultaInsertar)){
-
-			    $resp=  true;
-
-			}	else {
-					$this->setmensajeoperacion($base->getError());
-					
-			}
-
-		} else {
-				$this->setmensajeoperacion($base->getError());
+				$resp = true;
+				// Obtener el id generado automáticamente por la base de datos
 			
+			} else {
+				$this->setmensajeoperacion($base->getError());
+			}
+		} else {
+			$this->setmensajeoperacion($base->getError());
 		}
 		return $resp;
 	}
 	
-	
-	
 	public function modificar(){
-	    $resp =false; 
-	    $base=new BaseDatos();
-		$consultaModifica="UPDATE persona SET idepersona='".$this->getIdPersona()."',apellido='".$this->getApellido()."',nombre='".$this->getNombre()."'
-                           ,telefono='".$this->getTelefono()."' WHERE nrodoc=". $this->getNrodoc();
+		$resp = false; 
+		$base = new BaseDatos();
+		$consultaModifica = "UPDATE persona SET apellido='".$this->getApellido()."', nombre='".$this->getNombre()."', telefono='".$this->getTelefono()."' 
+							 WHERE nrodoc=".$this->getNrodoc();
+							 
 		if($base->Iniciar()){
 			if($base->Ejecutar($consultaModifica)){
-			    $resp=  true;
-			}else{
+				$resp = true;
+			} else {
 				$this->setmensajeoperacion($base->getError());
-				
 			}
-		}else{
-				$this->setmensajeoperacion($base->getError());
-			
+		} else {
+			$this->setmensajeoperacion($base->getError());
 		}
 		return $resp;
 	}
 	
 	public function eliminar(){
-		$base=new BaseDatos();
-		$resp=false;
+		$base = new BaseDatos();
+		$resp = false;
+		
 		if($base->Iniciar()){
-				$consultaBorra="DELETE FROM persona WHERE nrodoc=".$this->getNrodoc();
-				if($base->Ejecutar($consultaBorra)){
-				    $resp=  true;
-				}else{
-						$this->setmensajeoperacion($base->getError());
-					
-				}
-		}else{
+			$consultaBorra = "DELETE FROM persona WHERE nrodoc=".$this->getNrodoc();
+			if($base->Ejecutar($consultaBorra)){
+				$resp = true;
+			} else {
 				$this->setmensajeoperacion($base->getError());
-			
+			}
+		} else {
+			$this->setmensajeoperacion($base->getError());
 		}
 		return $resp; 
 	}
 
 	public function __toString(){
-	    return "\nId Persona: ".$this->getIdPersona()."\nNombre: ".$this->getNombre(). "\n Apellido:".$this->getApellido()."\n DNI: ".$this->getNrodoc()."\n";
+	    return "\nId Persona: ".$this->getIdPersona().
+		"\nNombre: ".$this->getNombre().
+		"\nApellido:".$this->getApellido().
+		"\nDNI: ".$this->getNrodoc().
+		"\nTelefono:".$this->getTelefono();
 			
 	}
 }

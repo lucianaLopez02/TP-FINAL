@@ -411,16 +411,22 @@ function insertarResponsable()
         $nombre = trim(fgets(STDIN));
         escribirVerde("Ingrese el apellido del responsable: \n");
         $apellido = trim(fgets(STDIN));
+        escribirVerde("Ingrese el telefono del responsable: \n");
+        $telefono = trim(fgets(STDIN));
 
         // Cargar los datos del nuevo responsable y tratar de insertarlo en la base de datos
-        $responsable->cargar($numEmpleado, $numLicencia, $nombre, $apellido);
+        $responsable->cargar($numEmpleado, $numLicencia, $nombre, $apellido,$telefono);
         if ($responsable->insertar()) {
             escribirVerde("Responsable insertado correctamente.\n");
-            $responsable->cargar(0, $numLicencia, $nombre, $apellido);
+            $responsable->cargar(0, $numLicencia, $nombre, $apellido,$telefono);
             $colResp = $responsable->listar();
-            foreach ($colResp as $unResp) {
-                escribirVerde($unResp);
-                escribirVerde("\n-----------\n");
+            if ($colResp === null) {
+                escribirRojo("No se encontraron responsables.\n");
+            } else {
+                foreach ($colResp as $unResp) {
+                    escribirVerde($unResp);
+                    escribirVerde("\n-----------\n");
+                }
             }
         } else {
             escribirRojo("Error al insertar responsable: " . $responsable->getmensajeoperacion() . "\n");
@@ -452,10 +458,13 @@ function modificarResponsable()
         $nuevoNombre = trim(fgets(STDIN));
         escribirVerde("Ingrese nuevo apellido del Responsable:\n");
         $nuevoApellido = trim(fgets(STDIN));
+        escribirVerde("Ingrese nuevo telefono del Responsable:\n");
+        $nuevoTelefono = trim(fgets(STDIN));
 
         $responsable->setNumLicencia($nuevaLicencia);
         $responsable->setNombre($nuevoNombre);
         $responsable->setApellido($nuevoApellido);
+        $responsable->setTelefono($nuevoTelefono);
 
         if ($responsable->modificar()) {
             escribirVerde("Responsable modificado correctamente.\n");

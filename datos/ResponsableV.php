@@ -12,11 +12,14 @@ class ResponsableV extends Persona {
         $this->numLicencia = "";
     }
 
-    // Ajuste en la firma de cargar para que sea compatible con Persona
-    public function cargar($idpersona, $numLicencia, $nombre, $apellido, $telefono = "") {
-        parent::cargar($idpersona, "", $nombre, $apellido, $telefono); // Llama al método cargar de Persona
-        $this->numEmpleado = $idpersona; // Asigna el idpersona al numEmpleado
-        $this->numLicencia = $numLicencia;
+    public function cargar($idpersona, $nrodoc, $nombre, $apellido, $telefono, $numEmpleado = null, $numLicencia = null) {
+        parent::cargar($idpersona, $nrodoc, $nombre, $apellido, $telefono);
+        if ($numEmpleado !== null) {
+            $this->setNumEmpleado($numEmpleado);
+        }
+        if ($numLicencia !== null) {
+            $this->setNumLicencia($numLicencia);
+        }
     }
 
     public function setNumEmpleado($numEmpleado) {
@@ -27,15 +30,7 @@ class ResponsableV extends Persona {
         $this->numLicencia = $numLicencia;
     }
 
-    public function setNombre($nombre) {
-        parent::setNombre($nombre); // Llama al método setNombre de Persona
-    }
-
-    public function setApellido($apellido) {
-        parent::setApellido($apellido); // Llama al método setApellido de Persona
-    }
-
-    public function setMensajeOperacion($mensajeoperacion) {
+    public function setmensajeoperacion($mensajeoperacion) {
         $this->mensajeoperacion = $mensajeoperacion;
     }
 
@@ -47,91 +42,75 @@ class ResponsableV extends Persona {
         return $this->numLicencia;
     }
 
-    public function getNombre() {
-        return parent::getNombre(); // Llama al método getNombre de Persona
-    }
-
-    public function getApellido() {
-        return parent::getApellido(); // Llama al método getApellido de Persona
-    }
-
-    public function getMensajeOperacion() {
+    public function getmensajeoperacion() {
         return $this->mensajeoperacion;
     }
 
-    public function buscar($numEmpleado) {
+    public function Buscar($numEmpleado) {
         $base = new BaseDatos();
-        $consultaResponsable = "SELECT * FROM responsable WHERE rnumeroempleado=" . $numEmpleado;
+        $consulta = "SELECT * FROM responsable WHERE rnumeroempleado=".$numEmpleado;
         $resp = false;
-
-        if ($base->iniciar()) {
-            if ($base->ejecutar($consultaResponsable)) {
-                if ($row2 = $base->registro()) {
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consulta)) {
+                if ($row2 = $base->Registro()) {
                     $this->setNumEmpleado($row2['rnumeroempleado']);
                     $this->setNumLicencia($row2['rnumerolicencia']);
-                    $this->setNombre($row2['rnombre']);
-                    $this->setApellido($row2['rapellido']);
                     $resp = true;
                 }
             } else {
-                $this->setMensajeOperacion($base->getError());
+                $this->setmensajeoperacion($base->getError());
             }
         } else {
-            $this->setMensajeOperacion($base->getError());
+            $this->setmensajeoperacion($base->getError());
         }
-
         return $resp;
     }
 
     public function listar($condicion = "") {
         $arregloResponsable = null;
         $base = new BaseDatos();
-        $consultaResponsable = "SELECT * FROM responsable ";
-
-        if (!empty($condicion)) {
-            $consultaResponsable .= 'WHERE ' . $condicion;
+        $consulta ="
+        SELECT r.rnumeroempleado, r.rnumerolicencia, p.idpersona, p.nrodoc, p.nombre, p.apellido, p.telefono
+        FROM responsable r
+        JOIN persona p ON r.idpersona = p.idpersona";
+        if ($condicion != "") {
+            $consulta .= ' WHERE ' . $condicion;
         }
+        $consulta .= " ORDER BY rnumeroempleado";
 
-        $consultaResponsable .= " ORDER BY rapellido ";
-
-        if ($base->iniciar()) {
-            if ($base->ejecutar($consultaResponsable)) {
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consulta)) {
                 $arregloResponsable = array();
-                while ($row2 = $base->registro()) {
-                    $numEmpleado = $row2['rnumeroempleado'];
-                    $numLicencia = $row2['rnumerolicencia'];
-                    $nombre = $row2['rnombre'];
-                    $apellido = $row2['rapellido'];
-
-                    $responsable = new ResponsableV();
-                    $responsable->cargar($numEmpleado, $numLicencia, $nombre, $apellido);
+                while ($row2 = $base->Registro()) {
+                    $responsable = new ResponsableV($row2['idpersona'], $row2['nrodoc'], $row2['nombre'], $row2['apellido'], $row2['telefono']);
+                    $responsable->setNumEmpleado($row2['rnumeroempleado']);
+                    $responsable->setNumLicencia($row2['rnumerolicencia']);
                     array_push($arregloResponsable, $responsable);
                 }
             } else {
-                $this->setMensajeOperacion($base->getError());
+                $this->setmensajeoperacion($base->getError());
             }
         } else {
-            $this->setMensajeOperacion($base->getError());
+            $this->setmensajeoperacion($base->getError());
         }
-
         return $arregloResponsable;
     }
 
     public function insertar() {
         $base = new BaseDatos();
         $resp = false;
-        $consultaInsertar = "INSERT INTO responsable(rnumeroempleado, rnumerolicencia, rnombre, rapellido) 
-                             VALUES (" . $this->getNumEmpleado() . ", '" . $this->getNumLicencia() . "', '" . $this->getNombre() . "', '" . $this->getApellido() . "')";
 
-        if ($base->iniciar()) {
-            if ($id = $base->devuelveIDInsercion($consultaInsertar)) {
-                $this->setNumEmpleado($id);
-                $resp = true;
+        if (parent::insertar()) {
+            $consultaInsertar = "INSERT INTO responsable(rnumeroempleado, rnumerolicencia) VALUES (".$this->getNumEmpleado().",'".$this->getNumLicencia()."')";
+            if ($base->Iniciar()) {
+                if ($base->Ejecutar($consultaInsertar)) {
+                    $resp = true;
+                } else {
+                    $this->setmensajeoperacion($base->getError());
+                }
             } else {
-                $this->setMensajeOperacion($base->getError());
+                $this->setmensajeoperacion($base->getError());
             }
-        } else {
-            $this->setMensajeOperacion($base->getError());
         }
 
         return $resp;
@@ -140,47 +119,45 @@ class ResponsableV extends Persona {
     public function modificar() {
         $resp = false;
         $base = new BaseDatos();
-        $consultaModifica = "UPDATE responsable SET rapellido='" . $this->getApellido() . "', rnombre='" . $this->getNombre() . "', 
-                             rnumeroempleado='" . $this->getNumEmpleado() . "', rnumerolicencia='" . $this->getNumLicencia() . "' 
-                             WHERE rnumeroempleado=" . $this->getNumEmpleado();
-
-        if ($base->iniciar()) {
-            if ($base->ejecutar($consultaModifica)) {
-                $resp = true;
+        if (parent::modificar()) {
+            $consultaModifica = "UPDATE responsable SET rnumerolicencia='" . $this->getNumLicencia() . "' WHERE rnumeroempleado=" . $this->getNumEmpleado();
+            if ($base->Iniciar()) {
+                if ($base->Ejecutar($consultaModifica)) {
+                    $resp = true;
+                } else {
+                    $this->setmensajeoperacion($base->getError());
+                }
             } else {
-                $this->setMensajeOperacion($base->getError());
+                $this->setmensajeoperacion($base->getError());
             }
-        } else {
-            $this->setMensajeOperacion($base->getError());
         }
-
         return $resp;
     }
 
     public function eliminar() {
         $base = new BaseDatos();
         $resp = false;
-
-        if ($base->iniciar()) {
+        if ($base->Iniciar()) {
             $consultaBorra = "DELETE FROM responsable WHERE rnumeroempleado=" . $this->getNumEmpleado();
-
-            if ($base->ejecutar($consultaBorra)) {
-                $resp = true;
+            if ($base->Ejecutar($consultaBorra)) {
+                if (parent::eliminar()) {
+                    $resp = true;
+                } else {
+                    $this->setmensajeoperacion($base->getError());
+                }
             } else {
-                $this->setMensajeOperacion($base->getError());
+                $this->setmensajeoperacion($base->getError());
             }
         } else {
-            $this->setMensajeOperacion($base->getError());
+            $this->setmensajeoperacion($base->getError());
         }
-
         return $resp;
     }
 
     public function __toString() {
-        return  "\nN° de Empleado: " . $this->getNumEmpleado() .
-                "\nN° de Licencia: " . $this->getNumLicencia() .
-                "\nNombre: " . $this->getNombre() .
-                "\nApellido:" . $this->getApellido();
+        return parent::__toString().
+            "\nN° de Empleado: " . $this->getNumEmpleado() .
+            "\nN° de Licencia: " . $this->getNumLicencia()."\n";
     }
 }
 ?>
