@@ -119,6 +119,9 @@ class BaseDatos {
     return $resp;
     }
 
-   
+    public function ultimoId() {
+        return $this->CONEXION->insert_id;
+    }
+  
 }
 ?>

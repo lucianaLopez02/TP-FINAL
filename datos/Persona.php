@@ -75,15 +75,15 @@ class Persona{
 	 * @param int $dni
 	 * @return true en caso de encontrar los datos, false en caso contrario 
 	 */		
-    public function Buscar($dni){
+    public function buscar($idpersona){
 		$base=new BaseDatos();
-		$consultaPersona="Select * from persona where nrodoc=".$dni;
+		$consultaPersona="Select * from persona where idpersona=".$idpersona;
 		$resp= false;
 		if($base->Iniciar()){
 			if($base->Ejecutar($consultaPersona)){
 				if($row2=$base->Registro()){
                     $this->setIdPersona($idpersona);					
-				    $this->setNrodoc($dni);
+				    $this->setNrodoc($row2['nrodoc']);
 					$this->setNombre($row2['nombre']);
 					$this->setApellido($row2['apellido']);
 					$this->setTelefono($row2['telefono']);
@@ -122,7 +122,7 @@ class Persona{
 					$Telefono=$row2['telefono'];
 				
 					$perso=new Persona();
-					$perso->cargar($idPersona,$NroDoc,$Nombre,$Apellido,$Email);
+					$perso->cargar($idPersona,$NroDoc,$Nombre,$Apellido,$Telefono);
 					array_push($arregloPersona,$perso);
 	
 				}
@@ -141,19 +141,16 @@ class Persona{
 
 
 	
-	public function insertar(){
+	public function insertar() {
 		$base = new BaseDatos();
 		$resp = false;
-		
-		// Consulta de inserción con corrección de sintaxis y manejo de autoincremento
-		$consultaInsertar = "INSERT INTO persona(nrodoc, apellido, nombre, telefono) 
-							 VALUES ('".$this->getNrodoc()."','".$this->getApellido()."','".$this->getNombre()."','".$this->getTelefono()."')";
-		
-		if($base->Iniciar()){
-			if($base->Ejecutar($consultaInsertar)){
+		$consultaInsertar = "INSERT INTO persona (idpersona, nrodoc, nombre, apellido, telefono) 
+							 VALUES ('".$this->getIdPersona()."', '".$this->getNrodoc()."', '".$this->getNombre()."', '".$this->getApellido()."', '".$this->getTelefono()."')";
+		if ($base->Iniciar()) {
+			if ($base->Ejecutar($consultaInsertar)) {
+				$idInsertado = $base->ultimoId();
+				$this->setIdPersona($idInsertado);
 				$resp = true;
-				// Obtener el id generado automáticamente por la base de datos
-			
 			} else {
 				$this->setmensajeoperacion($base->getError());
 			}
@@ -162,6 +159,7 @@ class Persona{
 		}
 		return $resp;
 	}
+	
 	
 	public function modificar(){
 		$resp = false; 

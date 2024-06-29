@@ -206,7 +206,7 @@ class Viaje{
     public function modificar(){
 	    $resp =false; 
 	    $base=new BaseDatos();
-		$consultaModifica="UPDATE viaje SET idviaje='".$this->getIdViaje()."',vdestino='".$this->getDestino()."'
+		$consultaModifica="UPDATE viaje SET vdestino='".$this->getDestino()."'
                            ,vcantmaxpasajeros='".$this->getCantMaxPasajeros().
                            "',idempresa='". $this->getEmpresa()->getIdEmpresa()."',rnumeroempleado='".
                            $this->getResponsable()->getNumEmpleado()."',vimporte='".$this->getImporte()."' WHERE idviaje=".$this->getIdViaje();

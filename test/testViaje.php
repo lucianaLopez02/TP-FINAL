@@ -227,6 +227,7 @@ function insertarViaje()
     escribirVerde("Ingrese el Importe del Viaje: \n");
     $importe = trim(fgets(STDIN));
 
+    
     $empresa = new Empresa();
     $colEmpresas = $empresa->listar();
 
@@ -234,45 +235,46 @@ function insertarViaje()
         escribirVerde($unaEmpresa . "\n");
         escribirVerde("\n-----------\n");
     }
+
     escribirVerde("Ingrese El Id de la Empresa:\n");
     $idEmpresa = trim(fgets(STDIN));
 
-    // Verificar si la empresa existe
+    
     if (!$empresa->Buscar($idEmpresa)) {
         escribirRojo("Error: La empresa con ID ".$idEmpresa." no existe. No se puede crear el viaje.\n");
     } else {
+        
         $responsable = new ResponsableV();
         $responsables = $responsable->listar();
+
         if ($responsables) {
             escribirVerde("Listado de responsables:\n");
             foreach ($responsables as $unResponsable) {
                 escribirVerde($unResponsable . "\n");
                 escribirVerde("\n-----------\n");
             }
-            escribirVerde("Ingrese el N° de Empleado del Responsable\n");
-            $numRes = trim(fgets(STDIN));
-            // Verificar si el responsable existe
-            if (!$responsable->Buscar($numRes)) {
-                escribirRojo("Error: El responsable con número de empleado " . $numRes . " no existe. No se puede crear el viaje.\n");
-            } else {
-                $colResp = $responsable->listar();
-                foreach ($colResp as $unResp) {
-                    escribirVerde($unResp);
-                    escribirVerde("\n-----------\n");
-                }
 
+            escribirVerde("Ingrese el id del responsable:\n");
+            $numP = trim(fgets(STDIN));
+
+    
+            if (!$responsable->buscar($numP)) {
+                escribirRojo("Error: El responsable con el id de persona " . $numP . " no existe. No se puede crear el viaje.\n");
+            } else {
+                
                 $viaje = new Viaje();
                 $viaje->cargar(0, $destino, $cantPasajeros, [], $empresa, $responsable, $importe);
 
+                // Insert the trip into the database
                 if ($viaje->insertar()) {
                     escribirVerde("Viaje insertado correctamente.\n");
                     escribirVerde($viaje . "\n");
                 } else {
                     escribirRojo("Error al insertar viaje: " . $viaje->getmensajeoperacion() . "\n");
+                    echo "ID del Responsable en Viaje: " . $viaje->getResponsable()->getIdPersona() . "\n";
                 }
             }
         } else {
-            // Si no hay responsables, mostrar un mensaje de error
             escribirRojo("Error: No existen responsables. No se puede crear el viaje.\n");
         }
     }
@@ -411,14 +413,15 @@ function insertarResponsable()
         $nombre = trim(fgets(STDIN));
         escribirVerde("Ingrese el apellido del responsable: \n");
         $apellido = trim(fgets(STDIN));
+        escribirVerde("Ingrese el número de documento del responsable: \n");
+        $nrodoc = trim(fgets(STDIN));
         escribirVerde("Ingrese el telefono del responsable: \n");
         $telefono = trim(fgets(STDIN));
 
         // Cargar los datos del nuevo responsable y tratar de insertarlo en la base de datos
-        $responsable->cargar($numEmpleado, $numLicencia, $nombre, $apellido,$telefono);
+        $responsable->cargar(0, $nrodoc, $nombre, $apellido, $telefono, $numEmpleado, $numLicencia);
         if ($responsable->insertar()) {
             escribirVerde("Responsable insertado correctamente.\n");
-            $responsable->cargar(0, $numLicencia, $nombre, $apellido,$telefono);
             $colResp = $responsable->listar();
             if ($colResp === null) {
                 escribirRojo("No se encontraron responsables.\n");
@@ -434,6 +437,7 @@ function insertarResponsable()
     }
 }
 
+
 function modificarResponsable()
 {
     //mostrar listado de responsables
@@ -448,7 +452,7 @@ function modificarResponsable()
             escribirVerde($unResponsable . "\n");
         }
 
-    escribirVerde("Ingrese el numero de empleado del Responsable:\n");
+    escribirVerde("Ingrese el id persona del Responsable:\n");
     $nroEmpleado = trim(fgets(STDIN));
     $responsable = new ResponsableV();
     if ($responsable->Buscar($nroEmpleado)) {
@@ -482,7 +486,7 @@ function listarResponsables()
     $responsable = new ResponsableV();
     $responsables = $responsable->listar();
 
-    if (empty($responsables) || $responsable->getmensajeoperacion() != "") {
+    if (empty($responsables)) {
         escribirRojo("No hay responsables existentes \n". $responsable->getmensajeoperacion() . "\n");
     } else {
         escribirVerde("Listado de responsables:\n");
@@ -506,7 +510,7 @@ function eliminarResponsable()
             escribirVerde($unResponsable . "\n");
         }
 
-    escribirVerde("Ingrese numero de empleado del Responsable a eliminar\n");
+    escribirVerde("Ingrese el id persona del Responsable a eliminar\n");
     $nroEmpleado = trim(fgets(STDIN));
     $responsable = new ResponsableV();
     if ($responsable->Buscar($nroEmpleado)) {
@@ -673,7 +677,7 @@ function eliminarPasajero()
     // Verificar si hay pasajeros para eliminar
     if (empty($pasajeros)) {
         escribirRojo("No hay pasajeros existentes.\n");
-        return; // Salir de la función si no hay pasajeros
+        //return Salir de la función si no hay pasajeros
     } else {
         escribirVerde("Listado de pasajeros:\n");
         foreach ($pasajeros as $unPasajero) {
