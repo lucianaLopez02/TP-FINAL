@@ -1,10 +1,10 @@
 <?php
 class Viaje{
     private $idviaje;  /*codigo de viaje*/
-	private $vdestino;
+    private $vdestino;
     private $vcantmaxpasajeros;
     private $colPasajeros;
-	private $empresa;//objeto empresa
+    private $empresa;//objeto empresa
     private $responsable;//objeto responsable
     private $vimporte;
     private $mensajeoperacion;
@@ -172,20 +172,7 @@ class Viaje{
 		 return $arregloViajes;
 	}
 
-    function obtenerIdResponsablePorNumeroEmpleado($numeroEmpleado) {
-        // Realiza la consulta SQL para obtener el idresponsable basado en el número de empleado
-        $consulta = "SELECT idresponsable FROM responsable WHERE rnumeroempleado = '" . $numeroEmpleado . "'";
-        $resultado = mysqli_query($conexion, $consulta);
-    
-        if ($resultado) {
-            $row = mysqli_fetch_assoc($resultado);
-            return $row['idresponsable']; // Devuelve el idresponsable encontrado
-        } else {
-            echo "Error al ejecutar la consulta: " . mysqli_error($conexion);
-            return false; // Devuelve false si hubo un error
-        }
-    }
-
+  
     public function insertar(){
 		$base=new BaseDatos();
 		$resp= false;
