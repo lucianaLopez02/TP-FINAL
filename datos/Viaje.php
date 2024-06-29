@@ -125,52 +125,55 @@ class Viaje{
 		 }		
 		 return $resp;
 	}
-
-
-    public function listar($condicion=""){
-	    $arregloViajes = null;
-		$base=new BaseDatos();
-		$consultaViajes="\nSelect * from viaje ";
-		if ($condicion!=""){
-		    $consultaViajes=$consultaViajes.' where '.$condicion;
-		}
-		$consultaViajes.=" order by vdestino ";
-		 
-		if($base->Iniciar()){
-			if($base->Ejecutar($consultaViajes)){
-				$arregloViajes= array();
-				while($row2=$base->Registro()){//modificar mas tarde
-					//print_r($row2);
-				    $idviaje=$row2['idviaje'];
-					$destino=$row2['vdestino'];
-					$cantMaxPasajeros=$row2['vcantmaxpasajeros'];
-                    $empresa= new Empresa();
+    
+    public function listar($condicion = "") {
+        $arregloViajes = null;
+        $base = new BaseDatos();
+        $consultaViajes = "SELECT * FROM viaje";
+        if ($condicion != "") {
+            $consultaViajes .= ' WHERE ' . $condicion;
+        }
+        $consultaViajes .= " ORDER BY vdestino";
+    
+        if ($base->Iniciar()) {
+            if ($base->Ejecutar($consultaViajes)) {
+                $arregloViajes = array();
+                while ($row2 = $base->Registro()) {
+                    // Recuperar datos del viaje
+                    $idviaje = $row2['idviaje'];
+                    $destino = $row2['vdestino'];
+                    $cantMaxPasajeros = $row2['vcantmaxpasajeros'];
+                    $importe = $row2['vimporte'];
+    
+                    // Buscar la empresa asociada
+                    $empresa = new Empresa();
                     $empresa->Buscar($row2['idempresa']);
-					$objPasajero=new Pasajero();
-                    $colPasajeros= $objPasajero->listar("idviaje=".$idviaje);//listar devuelve un array con los pasajeros almacenados en la base de datos
-                    $objResponsable= new ResponsableV();
-					$objResponsable->Buscar($row2['rnumeroempleado']);//Buscar lo que hace es buscar en la base de datos al responsable y
-                    // a este objResponsable le asinga los valores del responsable al que se busca
-                    $importe=$row2['vimporte'];
-				
-					$viaje=new Viaje();
-                                                                        //?
-					$viaje->cargar($idviaje, $destino,$cantMaxPasajeros,$colPasajeros,$empresa,$objResponsable,$importe);
-					array_push($arregloViajes,$viaje);
-	
-				}
-				
-			
-		 	}	else {
-		 			$this->setmensajeoperacion($base->getError());
-		 		
-			}
-		 }	else {
-		 		$this->setmensajeoperacion($base->getError());
-		 	
-		 }	
-		 return $arregloViajes;
-	}
+    
+                    // Buscar los pasajeros asociados
+                    $objPasajero = new Pasajero();
+                    $colPasajeros = $objPasajero->listar("idviaje=" . $idviaje);
+    
+                    // Buscar el responsable asociado
+                    $objResponsable = new ResponsableV();
+                    $objResponsable->Buscar($row2['idresponsable']); // Buscar usando idresponsable
+    
+                    // Crear el objeto Viaje y cargarlo con los datos recuperados
+                    $viaje = new Viaje();
+                    $viaje->cargar($idviaje, $destino, $cantMaxPasajeros, $colPasajeros, $empresa, $objResponsable, $importe);
+    
+                    // Agregar el objeto Viaje al arreglo
+                    array_push($arregloViajes, $viaje);
+                }
+            } else {
+                $this->setmensajeoperacion($base->getError());
+            }
+        } else {
+            $this->setmensajeoperacion($base->getError());
+        }
+    
+        return $arregloViajes;
+    }
+    
 
   
     public function insertar(){
