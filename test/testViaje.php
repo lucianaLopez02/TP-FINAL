@@ -696,11 +696,11 @@ function eliminarPasajero()
     }
 
     // Solicitar el DNI del pasajero a eliminar
-    escribirVerde("Ingrese el DNI del pasajero a eliminar: ");
-    $dni = trim(fgets(STDIN));
+    escribirVerde("Ingrese el id del pasajero a eliminar: ");
+    $idPasajero = trim(fgets(STDIN));
 
     // Verificar si el pasajero existe
-    if ($pasajero->Buscar($dni)) {
+    if ($pasajero->Buscar($idPasajero)) {
         // Eliminar el pasajero de la base de datos
         if ($pasajero->eliminar()) {
             escribirVerde("Pasajero eliminado correctamente.\n");
