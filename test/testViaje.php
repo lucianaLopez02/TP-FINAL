@@ -464,11 +464,18 @@ function modificarResponsable()
         $nuevoApellido = trim(fgets(STDIN));
         escribirVerde("Ingrese nuevo telefono del Responsable:\n");
         $nuevoTelefono = trim(fgets(STDIN));
+        escribirVerde("Ingrese nuevo nro documento del Responsable:\n");
+        $nuevoNroDoc = trim(fgets(STDIN));
+        escribirVerde("Ingrese nuevo nro empleado del Responsable:\n");
+        $nuevoNroE = trim(fgets(STDIN));
 
         $responsable->setNumLicencia($nuevaLicencia);
         $responsable->setNombre($nuevoNombre);
         $responsable->setApellido($nuevoApellido);
         $responsable->setTelefono($nuevoTelefono);
+        $responsable->setNrodoc($nuevoNroDoc);
+        $responsable->setNumEmpleado($nuevoNroE);
+
 
         if ($responsable->modificar()) {
             escribirVerde("Responsable modificado correctamente.\n");
@@ -621,11 +628,11 @@ function modificarPasajero()
 
 
     // Solicitar el DNI del pasajero a modificar
-    escribirVerde("Ingrese el DNI del pasajero a modificar:\n");
-    $dni = trim(fgets(STDIN));
+    escribirVerde("Ingrese el id del pasajero a modificar:\n");
+    $numP = trim(fgets(STDIN));
 
     // Verificar si el pasajero existe
-    if ($pasajero->Buscar($dni)) {
+    if ($pasajero->Buscar($numP)) {
         // Solicitar los nuevos datos del pasajero
         escribirVerde("Ingrese el nuevo nombre del pasajero:\n");
         $nombre = trim(fgets(STDIN));
@@ -633,11 +640,14 @@ function modificarPasajero()
         $apellido = trim(fgets(STDIN));
         escribirVerde("Ingrese el nuevo teléfono del pasajero:\n");
         $telefono = trim(fgets(STDIN));
+        escribirVerde("Ingrese el nuevo dni del pasajero:\n");
+        $dni = trim(fgets(STDIN));
 
         // Modificar los datos del pasajero y actualizar en la base de datos
         $pasajero->setNombre($nombre);
         $pasajero->setApellido($apellido);
         $pasajero->setTelefono($telefono);
+        $pasajero->setNroDoc($dni);
 
         if ($pasajero->modificar()) {
             escribirVerde("Pasajero modificado correctamente.\n");

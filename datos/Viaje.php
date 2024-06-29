@@ -172,16 +172,36 @@ class Viaje{
 		 return $arregloViajes;
 	}
 
-
+    function obtenerIdResponsablePorNumeroEmpleado($numeroEmpleado) {
+        // Realiza la consulta SQL para obtener el idresponsable basado en el número de empleado
+        $consulta = "SELECT idresponsable FROM responsable WHERE rnumeroempleado = '" . $numeroEmpleado . "'";
+        $resultado = mysqli_query($conexion, $consulta);
+    
+        if ($resultado) {
+            $row = mysqli_fetch_assoc($resultado);
+            return $row['idresponsable']; // Devuelve el idresponsable encontrado
+        } else {
+            echo "Error al ejecutar la consulta: " . mysqli_error($conexion);
+            return false; // Devuelve false si hubo un error
+        }
+    }
 
     public function insertar(){
 		$base=new BaseDatos();
 		$resp= false;
         $responsable=$this->getResponsable();
         $empresa=$this->getEmpresa();
-		$consultaInsertar="INSERT INTO viaje(idviaje,vdestino,vcantmaxpasajeros,idempresa,rnumeroempleado,vimporte) 
-				VALUES (".$this->getIdViaje().",'".$this->getDestino()."','".$this->getCantMaxPasajeros()."','"
-                .$empresa->getIdEmpresa()."','".$responsable->getNumEmpleado()."','".$this->getImporte()."')";
+    
+		$consultaInsertar = "INSERT INTO viaje(idviaje, vdestino, vcantmaxpasajeros, idempresa, idresponsable, rnumeroempleado, vimporte) 
+                    VALUES (
+                        ".$this->getIdViaje().",
+                        '".$this->getDestino()."',
+                        '".$this->getCantMaxPasajeros()."',
+                        '".$empresa->getIdEmpresa()."',
+                        (SELECT idresponsable FROM responsable WHERE rnumeroempleado = '".$responsable->getNumEmpleado()."'),
+                        '".$responsable->getNumEmpleado()."', 
+                        '".$this->getImporte()."'
+                    )";
 		
 		if($base->Iniciar()){
 

@@ -41,13 +41,13 @@ class Pasajero extends Persona {
      */
     public function Buscar($idPersona) {
         $base = new BaseDatos();
-        $consultaPersona = "SELECT * FROM pasajero WHERE idpersona=" . $idpersona;
+        $consultaPersona = "SELECT * FROM pasajero WHERE idpersona=" . $idPersona;
         $resp = false;
         if (parent::buscar($idPersona)){
             if ($base->Iniciar()) {
                 if ($base->Ejecutar($consultaPersona)) {
                     if ($row2 = $base->Registro()) {
-                        parent::Buscar($dni);
+                        parent::Buscar($idPersona);
                         $this->setIdViaje($row2['idviaje']);
                         $resp = true;
                     }                
@@ -75,13 +75,13 @@ class Pasajero extends Persona {
                 $arregloPasajeros = array();
                 while ($row2 = $base->Registro()) {
                     $idviaje = $row2['idviaje'];
-                    $nrodoc = $row2['nrodoc']; // Suponiendo que nrodoc es parte de la tabla pasajero
+                    $idpersona = $row2['idpersona']; // Suponiendo que nrodoc es parte de la tabla pasajero
 
                     // Crear una nueva instancia de Pasajero
                     $pasajero = new Pasajero();
 
                     // Usar el método Buscar para llenar los detalles desde la clase Persona
-                    if ($pasajero->Buscar($nrodoc)) {
+                    if ($pasajero->Buscar($idpersona)) {
                       
                         array_push($arregloPasajeros, $pasajero);
                     } else {
@@ -130,7 +130,7 @@ class Pasajero extends Persona {
         $resp = false; 
         $base = new BaseDatos();
         if (parent::modificar()) {
-            $consultaModifica = "UPDATE pasajero SET idviaje='" . $this->getIdViaje() . "' WHERE idpersona=" . $this->getIdPersona;
+            $consultaModifica = "UPDATE pasajero SET idviaje='" . $this->getIdViaje() . "' WHERE idpersona=" . $this->getIdPersona();
             if ($base->Iniciar()) {
                 if ($base->Ejecutar($consultaModifica)) {
                     $resp = true;
